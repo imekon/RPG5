@@ -1,4 +1,14 @@
-shopLevel = {
+GROUND = ' '
+GRASS = '.'
+WALL = '#'
+DOOR1 = '|'
+DOOR2 = '-'
+DOWNSTAIRS = '>'
+UPSTAIRS = '<'
+TREES = 'T'
+
+shopLevel = 
+{
   "..............................................................",
   ".######################...........#################...........",
   ".#                    #...........#               #...........",
@@ -30,10 +40,15 @@ shopLevel = {
   ".............................................................."
 }
 
-function setLevel(lvl)
+function setLevel(lvl, name)
+  level.name = name
   level.data = lvl
   level.width = string.len(lvl[1])
   level.height = #lvl
+end
+
+function getLevelCell(x, y)
+  return string.char(level.data[y + 1]:byte(x + 1))
 end
 
 function love.load()
@@ -41,12 +56,11 @@ function love.load()
   cam = camera()
   
   level = {}
-  setLevel(shopLevel)
-  --level.data = shopLevel
-  --level.width = string.len(shopLevel[1])
-  --level.height = #shopLevel
+  setLevel(shopLevel, "Shops")
 
   player = {}
+  player.mana = 100
+  player.health = 100
   player.x = 5
   player.y = 5
   player.graphics = love.graphics.newImage("images/player.png")
@@ -58,43 +72,56 @@ function love.load()
   door1 = love.graphics.newImage("images/door1.png")
   door2 = love.graphics.newImage("images/door2.png")
   downstairs = love.graphics.newImage("images/downstairs.png")
+  upstairs = love.graphics.newImage("images/upstairs.png")
   
-  mapWidth = string.len(shopLevel[1])
-  mapHeight = #shopLevel
+  --mapWidth = string.len(shopLevel[1])
+  --mapHeight = #shopLevel
 end
 
 function love.keypressed(key)
+  local x = player.x
+  local y = player.y
+  
   if key =="right" then
-    player.x = player.x + 1
+    x = x + 1
   end
 
   if key == "left" then
-    player.x = player.x - 1
+    x = x - 1
   end
 
   if key == "down" then
-    player.y = player.y + 1
+    y = y + 1
   end
 
   if key == "up" then
-    player.y = player.y - 1
+    y = y - 1
   end
   
-  if player.x < 0 then
-    player.x = 0
+  if x < 0 then
+    x = 0
   end
   
-  if player.x >= level.width then
-    player.x = level.width - 1
+  if x >= level.width then
+    x = level.width - 1
   end
   
-  if player.y < 0 then
-    player.y = 0
+  if y < 0 then
+    y = 0
   end
   
-  if player.y >= level.height then
-    player.y = level.height - 1
+  if y >= level.height then
+    y = level.height - 1
   end
+  
+  target = getLevelCell(x, y)
+  
+  if target == '#' then
+    return
+  end
+  
+  player.x = x
+  player.y = y
 end
 
 function love.update(dt)
@@ -133,7 +160,7 @@ function love.draw()
   cam:attach()
   for y = 0, level.height - 1 do
     for x = 0, level.width - 1 do
-      ch = string.char(level.data[y + 1]:byte(x + 1))
+      ch = getLevelCell(x, y)
       if ch == ' ' then
         love.graphics.draw(ground, x * 32, y * 32)
       elseif ch == '.' then
