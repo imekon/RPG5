@@ -1,3 +1,35 @@
+shopLevel = {
+  "..............................................................",
+  ".######################...........#################...........",
+  ".#                    #...........#               #...........",
+  ".#                    #...........#               #...........",
+  ".#                    #...........#               #...........",
+  ".#                    #...........#               #...........",
+  ".#                    #############               #...........",
+  ".#                    |           |               #...........",
+  ".#                    #############               #...........",
+  ".#                    #...........#               #...........",
+  ".#                    #...........#               #...........",
+  ".#                    #...........#               #...........",
+  ".##########-###########...........#########-#######...........",
+  "..........# #.............................# #.................",
+  "..........# #.............................# #.................",
+  "..........# #.............................# #.................",
+  "..........# ############################### #.................",
+  "..........#                                 #.................",
+  "..........################# #################.................",
+  "..........................# #.................................",
+  "..........................# #.................................",
+  "..........................# #.................................",
+  "..........................# #.................................",
+  ".......................####-####..............................",
+  ".......................#       #..............................",
+  ".......................#   >   #..............................",
+  ".......................#       #..............................",
+  ".......................#########..............................",
+  ".............................................................."
+}
+
 function love.load()
   camera = require "libraries/camera"
   cam = camera()
@@ -10,9 +42,12 @@ function love.load()
   grass = love.graphics.newImage("images/grass.png")
   ground = love.graphics.newImage("images/ground.png")
   wall = love.graphics.newImage("images/wall.png")
+  door1 = love.graphics.newImage("images/door1.png")
+  door2 = love.graphics.newImage("images/door2.png")
+  downstairs = love.graphics.newImage("images/downstairs.png")
   
-  mapWidth = 50
-  mapHeight = 40
+  mapWidth = string.len(shopLevel[1])
+  mapHeight = #shopLevel
 end
 
 function love.keypressed(key)
@@ -83,16 +118,21 @@ function love.update(dt)
 end
 
 function love.draw()
-  local start = love.timer.getTime()
-  
   -- camera drawn stuff
   cam:attach()
-  for y = 0,mapHeight - 1 do
-    for x = 0,mapWidth - 1 do
-      if (x + y) % 2 == 0 then
-        love.graphics.draw(ground, x * 32, y * 32)
-      else
+  for y = 0, mapHeight - 1 do
+    for x = 0, mapWidth - 1 do
+      ch = string.char(shopLevel[y + 1]:byte(x + 1))
+      if ch == '.' then
+        love.graphics.draw(grass, x * 32, y * 32)
+      elseif ch == '#' then
         love.graphics.draw(wall, x * 32, y * 32)
+      elseif ch == '|' then
+        love.graphics.draw(door1, x * 32, y * 32)
+      elseif ch == '-' then
+        love.graphics.draw(door2, x * 32, y * 32)
+      elseif ch == '>' then
+        love.graphics.draw(downstairs, x * 32, y * 32)
       end
     end
   end
@@ -100,9 +140,8 @@ function love.draw()
   love.graphics.draw(player.graphics, player.x * 32, player.y * 32)
   cam:detach()
   
-  local length = love.timer.getTime() - start
-
   -- hud stuff (outside of camera)
-  love.graphics.print(string.format("FPS: %d time: %1.2f s", love.timer.getFPS(), length), 10, 10)
+  love.graphics.print(string.format("FPS: %d", love.timer.getFPS()), 10, 10)
+  love.graphics.print(string.format("Player: %d, %d", player.x, player.y), 10, 30)
 end
 
