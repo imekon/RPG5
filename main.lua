@@ -5,6 +5,7 @@ DOOR1 = '|'
 DOOR2 = '-'
 DOWNSTAIRS = '>'
 UPSTAIRS = '<'
+GOLD = '$'
 TREES = 'T'
 
 shopLevel = 
@@ -15,9 +16,9 @@ shopLevel =
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
-  ".#                    #...........#               #...........",
+  ".#                    #           #               #...........",
   ".#                    |           |               #...........",
-  ".#                    #...........#               #...........",
+  ".#                    #           #               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
@@ -61,6 +62,7 @@ function love.load()
   player = {}
   player.mana = 100
   player.health = 100
+  player.gold = 50
   player.x = 5
   player.y = 5
   player.graphics = love.graphics.newImage("images/player.png")
@@ -68,14 +70,14 @@ function love.load()
   grass = love.graphics.newImage("images/grass.png")
   ground = love.graphics.newImage("images/ground.png")
   wall = love.graphics.newImage("images/wall.png")
+  gold = love.graphics.newImage("images/gold.png")
   trees = love.graphics.newImage("images/tree.png")
   door1 = love.graphics.newImage("images/door1.png")
   door2 = love.graphics.newImage("images/door2.png")
   downstairs = love.graphics.newImage("images/downstairs.png")
   upstairs = love.graphics.newImage("images/upstairs.png")
   
-  --mapWidth = string.len(shopLevel[1])
-  --mapHeight = #shopLevel
+  love.keyboard.setKeyRepeat(true)
 end
 
 function love.keypressed(key)
@@ -116,7 +118,7 @@ function love.keypressed(key)
   
   target = getLevelCell(x, y)
   
-  if target == '#' then
+  if target == WALL then
     return
   end
   
@@ -161,19 +163,19 @@ function love.draw()
   for y = 0, level.height - 1 do
     for x = 0, level.width - 1 do
       ch = getLevelCell(x, y)
-      if ch == ' ' then
+      if ch == GROUND then
         love.graphics.draw(ground, x * 32, y * 32)
-      elseif ch == '.' then
+      elseif ch == GRASS then
         love.graphics.draw(grass, x * 32, y * 32)
-      elseif ch == 'T' then
+      elseif ch == TREES then
         love.graphics.draw(trees, x * 32, y * 32)
-      elseif ch == '#' then
+      elseif ch == WALL then
         love.graphics.draw(wall, x * 32, y * 32)
-      elseif ch == '|' then
+      elseif ch == DOOR1 then
         love.graphics.draw(door1, x * 32, y * 32)
-      elseif ch == '-' then
+      elseif ch == DOOR2 then
         love.graphics.draw(door2, x * 32, y * 32)
-      elseif ch == '>' then
+      elseif ch == DOWNSTAIRS then
         love.graphics.draw(downstairs, x * 32, y * 32)
       end
     end
@@ -184,6 +186,7 @@ function love.draw()
   
   -- hud stuff (outside of camera)
   love.graphics.print(string.format("FPS: %d", love.timer.getFPS()), 10, 10)
-  love.graphics.print(string.format("Player: %d, %d", player.x, player.y), 10, 30)
+  love.graphics.print(string.format("Player: %d, %d %s", player.x, player.y, level.name), 10, 30)
+  love.graphics.print(string.format("Gold: %d", player.gold), 10, 50)
 end
 
