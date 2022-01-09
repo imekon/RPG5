@@ -5,34 +5,46 @@ shopLevel = {
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
-  ".#                    #############               #...........",
+  ".#                    #...........#               #...........",
   ".#                    |           |               #...........",
-  ".#                    #############               #...........",
+  ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".#                    #...........#               #...........",
   ".##########-###########...........#########-#######...........",
-  "..........# #.............................# #.................",
-  "..........# #.............................# #.................",
-  "..........# #.............................# #.................",
-  "..........# ############################### #.................",
-  "..........#                                 #.................",
-  "..........################# #################.................",
-  "..........................# #.................................",
-  "..........................# #.................................",
-  "..........................# #.................................",
-  "..........................# #.................................",
-  ".......................####-####..............................",
-  ".......................#       #..............................",
-  ".......................#   >   #..............................",
-  ".......................#       #..............................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........                                   .................",
+  "..........                                   .................",
+  "..........                                   .................",
+  "..........................   .................................",
+  "..........................   .................................",
+  "..........................   .................................",
+  "..........................   .................................",
+  ".......T.T.............####-####..............................",
+  "........TTTT...........#       #..............................",
+  ".......TTTTTTT.........#   >   #..............................",
+  "...........TT..........#       #..............................",
   ".......................#########..............................",
   ".............................................................."
 }
 
+function setLevel(lvl)
+  level.data = lvl
+  level.width = string.len(lvl[1])
+  level.height = #lvl
+end
+
 function love.load()
   camera = require "libraries/camera"
   cam = camera()
+  
+  level = {}
+  setLevel(shopLevel)
+  --level.data = shopLevel
+  --level.width = string.len(shopLevel[1])
+  --level.height = #shopLevel
 
   player = {}
   player.x = 5
@@ -42,6 +54,7 @@ function love.load()
   grass = love.graphics.newImage("images/grass.png")
   ground = love.graphics.newImage("images/ground.png")
   wall = love.graphics.newImage("images/wall.png")
+  trees = love.graphics.newImage("images/tree.png")
   door1 = love.graphics.newImage("images/door1.png")
   door2 = love.graphics.newImage("images/door2.png")
   downstairs = love.graphics.newImage("images/downstairs.png")
@@ -71,20 +84,18 @@ function love.keypressed(key)
     player.x = 0
   end
   
-  if player.x >= mapWidth then
-    player.x = mapWidth - 1
+  if player.x >= level.width then
+    player.x = level.width - 1
   end
   
   if player.y < 0 then
     player.y = 0
   end
   
-  if player.y >= mapHeight then
-    player.y = mapHeight - 1
+  if player.y >= level.height then
+    player.y = level.height - 1
   end
-  
 end
-
 
 function love.update(dt)
   local x = player.x * 32
@@ -105,8 +116,8 @@ function love.update(dt)
   end
 
   -- restrain camera bottom right border
-  local mapW = mapWidth * 32
-  local mapH = mapHeight * 32
+  local mapW = level.width * 32
+  local mapH = level.height * 32
 
   if cam.x > (mapW - w/2) then
       cam.x = mapW - w/2
@@ -120,11 +131,15 @@ end
 function love.draw()
   -- camera drawn stuff
   cam:attach()
-  for y = 0, mapHeight - 1 do
-    for x = 0, mapWidth - 1 do
-      ch = string.char(shopLevel[y + 1]:byte(x + 1))
-      if ch == '.' then
+  for y = 0, level.height - 1 do
+    for x = 0, level.width - 1 do
+      ch = string.char(level.data[y + 1]:byte(x + 1))
+      if ch == ' ' then
+        love.graphics.draw(ground, x * 32, y * 32)
+      elseif ch == '.' then
         love.graphics.draw(grass, x * 32, y * 32)
+      elseif ch == 'T' then
+        love.graphics.draw(trees, x * 32, y * 32)
       elseif ch == '#' then
         love.graphics.draw(wall, x * 32, y * 32)
       elseif ch == '|' then
