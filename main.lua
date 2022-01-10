@@ -1,8 +1,3 @@
-function getCode(ch)
-  local code = ch:byte()
-  return code
-end
-
 GROUND = ' '
 GRASS = '.'
 WALL = '#'
@@ -12,6 +7,8 @@ DOWNSTAIRS = '>'
 UPSTAIRS = '<'
 GOLD = '$'
 TREES = 'T'
+SINKHOLE = 's'
+WARP = 'w'
 
 shopLevel = 
 {
@@ -31,6 +28,11 @@ shopLevel =
   "..........   .............................   .................",
   "..........   .............................   .................",
   "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
+  "..........   .............................   .................",
   "..........                                   .................",
   "..........                                   .................",
   "..........                                   .................",
@@ -46,37 +48,27 @@ shopLevel =
   ".............................................................."
 }
 
-function convertLevelToData(level)
-  local data = {}
-  local levelHeight = #level
-  
-  for y=1,levelHeight do
-    local line = level[y]
-    local lineLen = string.len(line)
-    data[y] = {}
-    for x=1,lineLen do
-      data[y][x] = {}
-      data[y][x].contents = line:byte(x)
-    end    
-  end
-  
-  return data
-end
-
 function setLevel(lvl, name)
   level.name = name
   level.data = lvl
-  level.extended = convertLevelToData(lvl)
   level.width = string.len(lvl[1])
   level.height = #lvl
+  level.doors = {}
 end
 
 function getLevelCell(x, y)
   return string.char(level.data[y + 1]:byte(x + 1))
 end
 
-function getLevelExtended(x, y)
-  return level.extended[y][x]
+function createPlayer()
+  local player = {}
+  player.mana = 100
+  player.health = 100
+  player.gold = 50
+  player.x = 6
+  player.y = 5
+  player.graphics = love.graphics.newImage("images/player.png")
+  return player
 end
 
 function love.load()
@@ -86,13 +78,7 @@ function love.load()
   level = {}
   setLevel(shopLevel, "Shops")
 
-  player = {}
-  player.mana = 100
-  player.health = 100
-  player.gold = 50
-  player.x = 5
-  player.y = 5
-  player.graphics = love.graphics.newImage("images/player.png")
+  player = createPlayer()
   
   grass = love.graphics.newImage("images/grass.png")
   ground = love.graphics.newImage("images/ground.png")
@@ -215,5 +201,7 @@ function love.draw()
   love.graphics.print(string.format("FPS: %d", love.timer.getFPS()), 10, 10)
   love.graphics.print(string.format("Player: %d, %d %s", player.x, player.y, level.name), 10, 30)
   love.graphics.print(string.format("Gold: %d", player.gold), 10, 50)
+  love.graphics.print(string.format("Health: %d", player.health), 10, 70)
+  love.graphics.print(string.format("Mana: %d", player.mana), 10, 90)
 end
 
