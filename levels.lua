@@ -55,3 +55,25 @@ function readLevelDef(level, defn)
     end
   end
 end
+
+function createLevelFromDefn(name, defn)
+  local width = string.len(defn[1])
+  local height = #defn
+  local level = {}
+  level.name = name
+  level.width = width
+  level.height = height
+  
+  for y=1,height do
+    level[y] = {}
+    for x=1,width do
+	    local room = {}
+	    room.lit = false
+	    room.contents = string.char(defn.data[y]:byte(x))
+	    room.monsters = {}
+      room.items = {}
+	    level[y][x] = room
+    end
+  end
+  return level
+end
