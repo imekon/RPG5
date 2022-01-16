@@ -1,17 +1,4 @@
-GROUND = ' '
-GRASS = '.'
-WALL = '#'
-DOOR1 = '|'
-DOOR2 = '-'
-DOWNSTAIRS = '>'
-UPSTAIRS = '<'
-GOLD = '$'
-MARKER = 'x'
-TREES = 'T'
-SINKHOLE = 's'
-WARP = 'w'
-
-shopLevel = 
+shopLevelDefn = 
 {
   "..............................................................",
   "..................................#######...#######...........",
@@ -20,7 +7,7 @@ shopLevel =
   ".....#         #..................#               #...........",
   ".....#         ####...............#            ####...........",
   ".....#            #               #            #..............",
-  ".....#            |               |            #..............",
+  ".....#   v        |               |         v  #..............",
   ".....#            #               #            ####...........",
   ".....#         ####...............#               #...........",
   ".....#         #..................#               #...........",
@@ -49,14 +36,14 @@ shopLevel =
   ".............................................................."
 }
 
-level1 =
+level1Defn =
 {
   "..............................................................",
   ".#########....##########......................##########......",
   ".#       ######        ########################        #......",
   ".#       |                                             #......",
   ".#       ######        #############-##########        #......",
-  ".#########....##########...........# #........#        #......",
+  ".#########....##########...........# #........#m       #......",
   "...................................# #........####-#####......",
   ".####################..............# #...........# #..........",
   ".#                  ################ #...........# #..........",
@@ -82,37 +69,20 @@ level1 =
   ".....########-###########...............#############-#######.",
   ".....#                  #...............#                   #.",
   ".....#                  #################                   #.",
-  ".....#                  |               |                   #.",
+  ".....#    m             |               |    m              #.",
   ".....#                  #################                   #.",
   ".....#                  #...............#                   #.",
   ".....####################...............#####################.",
   ".............................................................."
 }
 
-function setLevel(lvl, name, lit)
-  level.name = name
-  level.data = lvl
-  level.lit = lit
-  level.width = string.len(lvl[1])
-  level.height = #lvl
-  level.doors = {}
-end
-
-function getLevelCell(x, y)
-  if level.lit then
-    return string.char(level.data[y + 1]:byte(x + 1))
-  else
-    return '+'
-  end
-end
-
 function createPlayer()
   local player = {}
   player.mana = 100
   player.health = 100
   player.gold = 50
-  player.x = 6
-  player.y = 5
+  player.x = -1
+  player.y = -1
   player.graphics = love.graphics.newImage("images/player.png")
   return player
 end
@@ -121,18 +91,20 @@ function love.load()
   camera = require "libraries/camera"
   cam = camera()
   
+  require "vendor"
+  require "monsters"
   require "levels"
   
-  shopLevelData = createLevelFromDefn("Shops", shopLevel, MARKER)
-  level1Data = createLevelFromDefn("Level 1", level1, MARKER)
+  shopLevel = createLevelFromDefn("Shops", shopLevelDefn, MARKER)
+  level1 = createLevelFromDefn("Level 1", level1Defn, MARKER)
   
-  for y=1,shopLevelData.height do
-    for x=1,shopLevelData.width do
-      shopLevelData[y][x].lit = true
+  for y=1,shopLevel.height do
+    for x=1,shopLevel.width do
+      shopLevel[y][x].lit = true
     end
   end
   
-  level = shopLevelData
+  level = shopLevel
 
   player = createPlayer()
   player.x = level.marker.x
@@ -172,14 +144,14 @@ function love.keypressed(key)
   end
   
   if key == '1' then
-    level = level1Data
+    level = level1
     player.x = level.marker.x
     player.y = level.marker.y
     return
   end
 
   if key == 's' then
-    level = shopLevelData
+    level = shopLevel
     player.x = level.marker.x
     player.y = level.marker.y
     return
@@ -267,6 +239,18 @@ function love.draw()
           love.graphics.draw(downstairs, (x - 1) * 32, (y - 1) * 32)
         end
       end
+    end
+  end
+  
+  for i, vendor in ipairs(level.vendors) do
+    if level[vendor.y][vendor.x].lit then
+      love.graphics.draw(vendor.graphics, (vendor.x - 1) * 32, (vendor.y - 1) * 32)
+    end
+  end
+  
+  for i, monster in ipairs(level.monsters) do
+    if level[monster.y][monster.x].lit then
+      love.graphics.draw(monster.graphics, (monster.x - 1) * 32, (monster.y - 1) * 32)
     end
   end
     
