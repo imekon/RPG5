@@ -4,13 +4,13 @@ function createLevel(name, width, height)
   for y=1,height do
     level[y] = {}
     for x=1,width do
-	    local room = {}
-	    room.lit = false
-	    room.contents = '.'
-	    room.monsters = {}
+	  local room = {}
+	  room.lit = false
+	  room.contents = '.'
+	  room.monsters = {}
       room.items = {}
       root.doors = {}
-	    level[y][x] = room
+	  level[y][x] = room
     end
   end
   return level
@@ -23,10 +23,10 @@ function printLevel(level)
     local line = ''
     for x=1,w do
       if level[y][x].lit then
-	    	line = line..level[y][x].contents
-	    else
+	    line = line..level[y][x].contents
+	  else
         line = line.."?"
-	    end
+	  end
     end
   print(line)
   end
@@ -57,7 +57,7 @@ function readLevelDef(level, defn)
   end
 end
 
-function createLevelFromDefn(name, defn)
+function createLevelFromDefn(name, defn, marker)
   local width = string.len(defn[1])
   local height = #defn
   local level = {}
@@ -65,16 +65,25 @@ function createLevelFromDefn(name, defn)
   level.width = width
   level.height = height
   
+  level.marker = {}
+  level.marker.x = -1
+  level.marker.y = -1
+  
   for y=1,height do
     level[y] = {}
     for x=1,width do
-	    local room = {}
-	    room.lit = false
-	    room.contents = string.char(defn[y]:byte(x))
-	    room.monsters = {}
+	  local room = {}
+	  room.lit = false
+	  room.contents = string.char(defn[y]:byte(x))
+	  room.monsters = {}
       room.items = {}
       room.doors = {}
-	    level[y][x] = room
+	  level[y][x] = room
+      
+      if room.contents == marker then
+        level.marker.x = x
+        level.marker.y = y
+      end
     end
   end
   return level

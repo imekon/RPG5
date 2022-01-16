@@ -6,6 +6,7 @@ DOOR2 = '-'
 DOWNSTAIRS = '>'
 UPSTAIRS = '<'
 GOLD = '$'
+MARKER = 'x'
 TREES = 'T'
 SINKHOLE = 's'
 WARP = 'w'
@@ -34,7 +35,7 @@ shopLevel =
   "..........   .............................   .................",
   "..........   .............................   .................",
   "..........                                   .................",
-  "..........                                   .................",
+  "..........                 x                 .................",
   "..........                                   .................",
   "..........................   .................................",
   "..........................   .................................",
@@ -66,7 +67,7 @@ level1 =
   "......................##############-#####................# #.",
   "......................#                  #................# #.",
   "...###############....#                  ################## #.",
-  "...#             #....#                  |                | #.",
+  "...#             #....#         x        |                | #.",
   "...#             #....#                  ################## #.",
   "...#             #....#                  #................# #.",
   "...#             #....#####-##############................# #.",
@@ -122,10 +123,8 @@ function love.load()
   
   require "levels"
   
-  --level = {}
-  --setLevel(shopLevel, "Shops", true)
-  shopLevelData = createLevelFromDefn("Shops", shopLevel)
-  level1Data = createLevelFromDefn("Level 1", level1)
+  shopLevelData = createLevelFromDefn("Shops", shopLevel, MARKER)
+  level1Data = createLevelFromDefn("Level 1", level1, MARKER)
   
   for y=1,shopLevelData.height do
     for x=1,shopLevelData.width do
@@ -136,6 +135,8 @@ function love.load()
   level = shopLevelData
 
   player = createPlayer()
+  player.x = level.marker.x
+  player.y = level.marker.y
   
   grass = love.graphics.newImage("images/grass.png")
   ground = love.graphics.newImage("images/ground.png")
@@ -171,32 +172,35 @@ function love.keypressed(key)
   end
   
   if key == '1' then
-    --setLevel(level1, "Level1", true)
     level = level1Data
+    player.x = level.marker.x
+    player.y = level.marker.y
+    return
   end
 
   if key == 's' then
-    --setLevel(shopLevel, "Shops", false)
     level = shopLevelData
+    player.x = level.marker.x
+    player.y = level.marker.y
+    return
   end  
   
   if x < 1 then
     x = 1
   end
   
-  if x >= level.width then
-    x = level.width - 1
+  if x > level.width then
+    x = level.width
   end
   
   if y < 1 then
     y = 1
   end
   
-  if y >= level.height then
-    y = level.height - 1
+  if y > level.height then
+    y = level.height
   end
   
-  --target = getLevelCell(x, y)
   target = level[y][x].contents
   
   if target == WALL then
@@ -247,8 +251,7 @@ function love.draw()
     for x = 1, level.width do
       if level[y][x].lit then
         ch = level[y][x].contents
-        --ch = getLevelCell(x, y)
-        if ch == GROUND then
+        if ch == GROUND or ch == MARKER then
           love.graphics.draw(ground, (x - 1) * 32, (y - 1) * 32)
         elseif ch == GRASS then
           love.graphics.draw(grass, (x - 1) * 32, (y - 1) * 32)
