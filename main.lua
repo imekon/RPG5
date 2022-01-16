@@ -120,8 +120,20 @@ function love.load()
   camera = require "libraries/camera"
   cam = camera()
   
-  level = {}
-  setLevel(shopLevel, "Shops", true)
+  require "levels"
+  
+  --level = {}
+  --setLevel(shopLevel, "Shops", true)
+  shopLevelData = createLevelFromDefn("Shops", shopLevel)
+  level1Data = createLevelFromDefn("Level 1", level1)
+  
+  for y=1,shopLevelData.height do
+    for x=1,shopLevelData.width do
+      shopLevelData[y][x].lit = true
+    end
+  end
+  
+  level = shopLevelData
 
   player = createPlayer()
   
@@ -159,30 +171,33 @@ function love.keypressed(key)
   end
   
   if key == '1' then
-    setLevel(level1, "Level1", true)
+    --setLevel(level1, "Level1", true)
+    level = level1Data
   end
 
   if key == 's' then
-    setLevel(shopLevel, "Shops", false)
+    --setLevel(shopLevel, "Shops", false)
+    level = shopLevelData
   end  
   
-  if x < 0 then
-    x = 0
+  if x < 1 then
+    x = 1
   end
   
   if x >= level.width then
     x = level.width - 1
   end
   
-  if y < 0 then
-    y = 0
+  if y < 1 then
+    y = 1
   end
   
   if y >= level.height then
     y = level.height - 1
   end
   
-  target = getLevelCell(x, y)
+  --target = getLevelCell(x, y)
+  target = level[y][x].contents
   
   if target == WALL then
     return
@@ -190,6 +205,8 @@ function love.keypressed(key)
   
   player.x = x
   player.y = y
+  
+  visitLevelRoom(level, x, y)
 end
 
 function love.update(dt)
@@ -226,28 +243,31 @@ end
 function love.draw()
   -- camera drawn stuff
   cam:attach()
-  for y = 0, level.height - 1 do
-    for x = 0, level.width - 1 do
-      ch = getLevelCell(x, y)
-      if ch == GROUND then
-        love.graphics.draw(ground, x * 32, y * 32)
-      elseif ch == GRASS then
-        love.graphics.draw(grass, x * 32, y * 32)
-      elseif ch == TREES then
-        love.graphics.draw(trees, x * 32, y * 32)
-      elseif ch == WALL then
-        love.graphics.draw(wall, x * 32, y * 32)
-      elseif ch == DOOR1 then
-        love.graphics.draw(door1, x * 32, y * 32)
-      elseif ch == DOOR2 then
-        love.graphics.draw(door2, x * 32, y * 32)
-      elseif ch == DOWNSTAIRS then
-        love.graphics.draw(downstairs, x * 32, y * 32)
+  for y = 1, level.height do
+    for x = 1, level.width do
+      if level[y][x].lit then
+        ch = level[y][x].contents
+        --ch = getLevelCell(x, y)
+        if ch == GROUND then
+          love.graphics.draw(ground, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == GRASS then
+          love.graphics.draw(grass, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == TREES then
+          love.graphics.draw(trees, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == WALL then
+          love.graphics.draw(wall, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == DOOR1 then
+          love.graphics.draw(door1, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == DOOR2 then
+          love.graphics.draw(door2, (x - 1) * 32, (y - 1) * 32)
+        elseif ch == DOWNSTAIRS then
+          love.graphics.draw(downstairs, (x - 1) * 32, (y - 1) * 32)
+        end
       end
     end
   end
     
-  love.graphics.draw(player.graphics, player.x * 32, player.y * 32)
+  love.graphics.draw(player.graphics, (player.x - 1) * 32, (player.y - 1) * 32)
   cam:detach()
   
   -- hud stuff (outside of camera)

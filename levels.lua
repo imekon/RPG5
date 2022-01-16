@@ -9,6 +9,7 @@ function createLevel(name, width, height)
 	    room.contents = '.'
 	    room.monsters = {}
       room.items = {}
+      root.doors = {}
 	    level[y][x] = room
     end
   end
@@ -69,9 +70,10 @@ function createLevelFromDefn(name, defn)
     for x=1,width do
 	    local room = {}
 	    room.lit = false
-	    room.contents = string.char(defn.data[y]:byte(x))
+	    room.contents = string.char(defn[y]:byte(x))
 	    room.monsters = {}
       room.items = {}
+      room.doors = {}
 	    level[y][x] = room
     end
   end
