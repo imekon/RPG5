@@ -83,6 +83,8 @@ function createPlayer()
   player.gold = 50
   player.x = -1
   player.y = -1
+  player.items = {}
+  player.items.torch = createTorch(-1, -1)
   player.graphics = love.graphics.newImage("images/player.png")
   return player
 end
@@ -93,6 +95,7 @@ function love.load()
   
   require "vendor"
   require "monsters"
+  require "items"
   require "levels"
   
   shopLevel = createLevelFromDefn("Shops", shopLevelDefn, MARKER)
